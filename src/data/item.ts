@@ -1,4 +1,4 @@
-import { createPostgresClient, databaseTables } from './'
+import { createPostgresClient } from './'
 import { InputItem } from 'types'
 
 export const upsert = async ({ item }: { item: InputItem }) => {
