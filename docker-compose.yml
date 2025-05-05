@@ -5,8 +5,6 @@ services:
       - postgres_data:/var/lib/postgresql/data/
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
       - ./database/users.sql:/docker-entrypoint-initdb.d/users.sql
-    environment:
-      POSTGRES_USER: siceadmin
     env_file:
       - ./.env
     ports:

@@ -44,6 +44,7 @@ CREATE TABLE Label (
 
 CREATE TABLE Package (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
     tagId INTEGER REFERENCES Tag(id) ON DELETE SET NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -53,11 +54,12 @@ CREATE TABLE Package (
 
 CREATE TABLE Item (
     id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE,
     description TEXT,
     tagId INTEGER REFERENCES Tag(id) ON DELETE SET NULL,
     categoryId INTEGER REFERENCES Category(id) ON DELETE SET NULL,
     packageId INTEGER REFERENCES Package(id) ON DELETE SET NULL,
-    packageInsertByUserId INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
+    userId INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
     createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     deletedAt TIMESTAMP NULL
@@ -92,12 +94,14 @@ CREATE TABLE User_Permission (
 
 CREATE TABLE Item_Log (
     id SERIAL PRIMARY KEY,
+    itemId INTEGER,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    name VARCHAR(50) NOT NULL UNIQUE,
+    description TEXT,
+    tagId INTEGER REFERENCES Tag(id) ON DELETE SET NULL,
     categoryId INTEGER REFERENCES Category(id) ON DELETE SET NULL,
     packageId INTEGER REFERENCES Package(id) ON DELETE SET NULL,
-    packageInsertByUserId INTEGER REFERENCES "user"(id) ON DELETE SET NULL,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    deletedAt TIMESTAMP NULL
+    userId INTEGER REFERENCES "user"(id) ON DELETE SET NULL
 );
 
 -- Trigger creations for updating updatedAt column
@@ -141,17 +145,20 @@ BEFORE UPDATE ON User_Permission
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
 
-CREATE TRIGGER set_item_log_updated_at
-BEFORE UPDATE ON Item_Log
-FOR EACH ROW
-EXECUTE FUNCTION update_updated_at_column();
-
 -- create item_log record when item changes
 CREATE OR REPLACE FUNCTION log_item_changes()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO Item_Log (categoryId, packageId, packageInsertByUserId, createdAt, updatedAt)
-  VALUES (NEW.categoryId, NEW.packageId, NEW.packageInsertByUserId, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP);
+  INSERT INTO Item_Log (itemId, name, description, tagId, categoryId, packageId, userId)
+  VALUES (
+    NEW.id,
+    NEW.name,
+    NEW.description,
+    NEW.tagId,
+    NEW.categoryId,
+    NEW.packageId,
+    NEW.userId
+  );
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
