@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { clientRouter } from './item'
+import { itemRouter } from './item'
 import { login } from './login'
 import { authMiddleware } from 'middleware/auth'
+import { packageRouter } from './package'
 
 export const router = Router()
 
@@ -15,4 +16,5 @@ const privateRouter = Router()
 privateRouter.use(authMiddleware)
 router.use(privateRouter)
 
-privateRouter.use('/item', clientRouter)
+privateRouter.use('/item', itemRouter)
+privateRouter.use('/package', packageRouter)

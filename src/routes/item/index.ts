@@ -3,8 +3,8 @@ import { itemGet } from './get'
 import { itemPost } from './post'
 import { itemDelete } from './delete'
 
-export const clientRouter = Router()
+export const itemRouter = Router()
 
-clientRouter.get('/', itemGet)
-clientRouter.post('/', itemPost)
-clientRouter.delete('/', itemDelete)
+itemRouter.get('/', itemGet)
+itemRouter.post('/', itemPost)
+itemRouter.delete('/', itemDelete)

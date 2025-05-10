@@ -32,3 +32,10 @@ export type InputItem = {
     userId: string
 }
 export type Item = RequiredId<IncludeDates<InputItem>>
+
+export type Package = {
+    id: string
+    name: string
+    description?: string
+    tagId?: string
+}

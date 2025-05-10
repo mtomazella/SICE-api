@@ -4,7 +4,7 @@ import {
     generateGeneralFuzzyClause,
     generateSpecificFuzzyClause,
 } from './index'
-import { OptionalId, Item } from 'type/entity'
+import { OptionalId, Item, Package } from 'type/entity'
 import { UpsertError } from 'error/index'
 
 export const list = async ({
@@ -65,7 +65,7 @@ export const list = async ({
         SELECT 
             *,
             COUNT(*) OVER() AS total_count
-        FROM item WHERE 1 = 1 ${id ? sql`AND id = ${id}` : sql``}
+        FROM package WHERE 1 = 1 ${id ? sql`AND id = ${id}` : sql``}
         ${
             hasGeneralFuzzy
                 ? sql`AND ( 
@@ -99,28 +99,22 @@ export const list = async ({
     }
 }
 
-export const upsert = async ({ record }: { record: OptionalId<Item> }) => {
+export const upsert = async ({ record }: { record: OptionalId<Package> }) => {
     try {
         const sql = createPostgresClient()
 
         const query = await sql<Item[]>`
-        INSERT INTO item (id, name, description, tagId, categoryId, packageId, userId)
+        INSERT INTO package (id, name, description, tagId)
         VALUES (
             ${record.id ?? sql`DEFAULT`},
             ${record.name},
             ${record.description ?? sql`DEFAULT`},
-            ${record.tagId ?? sql`DEFAULT`},
-            ${record.categoryId ?? sql`DEFAULT`},
-            ${record.packageId ?? sql`DEFAULT`},
-            ${record.userId}
+            ${record.tagId ?? sql`DEFAULT`}
         )
         ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
             description = EXCLUDED.description,
             tagId = EXCLUDED.tagId,
-            categoryId = EXCLUDED.categoryId,
-            packageId = EXCLUDED.packageId,
-            userId = EXCLUDED.userId,
             updatedAt = NOW()
         RETURNING *;
     `
@@ -148,7 +142,7 @@ export const remove = async ({ id }: { id: string }) => {
         const sql = createPostgresClient()
 
         const query = await sql<Item[]>`
-        DELETE FROM item WHERE id = ${id} RETURNING *;
+        DELETE FROM package WHERE id = ${id} RETURNING *;
     `
 
         return query
