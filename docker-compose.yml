@@ -4,6 +4,7 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data/
       - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./database/testData.sql:/docker-entrypoint-initdb.d/testData.sql
       - ./database/users.sql:/docker-entrypoint-initdb.d/users.sql
     env_file:
       - ./.env

@@ -1,5 +1,7 @@
 import { Router } from 'express'
-import { itemRouter } from './item'
+import { clientRouter } from './item'
+import { login } from './login'
+import { authMiddleware } from 'middleware/auth'
 
 export const router = Router()
 
@@ -7,4 +9,10 @@ router.get('/', (req, res) => {
     res.json({ message: 'Hello World' })
 })
 
-router.use('/item', itemRouter)
+router.post('/login', login)
+
+const privateRouter = Router()
+privateRouter.use(authMiddleware)
+router.use(privateRouter)
+
+privateRouter.use('/item', clientRouter)

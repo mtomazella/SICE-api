@@ -1,6 +1,10 @@
-import { Router } from "express";
-import { postItemEndpoint } from "./post";
+import { Router } from 'express'
+import { itemGet } from './get'
+import { itemPost } from './post'
+import { itemDelete } from './delete'
 
-export const itemRouter = Router();
+export const clientRouter = Router()
 
-itemRouter.post('/', postItemEndpoint)
+clientRouter.get('/', itemGet)
+clientRouter.post('/', itemPost)
+clientRouter.delete('/', itemDelete)

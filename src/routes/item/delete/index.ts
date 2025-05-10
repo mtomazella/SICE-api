@@ -1,11 +1,11 @@
-import { upsert } from 'data/item'
+import { remove } from 'data/item'
 import {
     PermissionError,
     RequestParameterValidationError,
     UpsertError,
 } from 'error/index'
-import { Handler, Request, Response } from 'express'
-import { ItemPostBody, ItemPostResponse } from './types'
+import { Request, Response } from 'express'
+import { ItemDeleteRequest, ItemDeleteResponse } from './types'
 import { extractParams } from './functions'
 import {
     BadRequest,
@@ -16,15 +16,14 @@ import {
 } from 'utils/response'
 import { checkPermissions } from 'auth/permissions'
 
-export const itemPost: Handler = async (
-    req: Request<{}, {}, ItemPostBody, {}>,
-    res: Response<ItemPostResponse>
+export const itemDelete = async (
+    req: Request<{}, {}, {}, ItemDeleteRequest>,
+    res: Response<ItemDeleteResponse>
 ): Promise<any> => {
     try {
-        const user = res.locals?.user
         checkPermissions({
-            userPermissions: user?.permissions,
-            requiredPermissions: ['item:upsert'],
+            userPermissions: res.locals?.user?.permissions,
+            requiredPermissions: ['item:delete'],
         })
 
         let params
@@ -39,15 +38,14 @@ export const itemPost: Handler = async (
 
         let result
         try {
-            result = await upsert({
-                record: { ...params.record, userId: user?.id },
-            })
+            result = await remove(params)
         } catch (error) {
             if (error instanceof UpsertError) {
                 return Conflict(res, error.message)
             }
-            console.error('Error upserting item:', error)
-            return InternalServerError(res, 'Failed to upsert item')
+
+            console.error('Error deleting item:', error)
+            return InternalServerError(res, 'Failed to delete item')
         }
 
         return Success(res, {
@@ -59,7 +57,7 @@ export const itemPost: Handler = async (
             return Forbidden(res, error.message)
         }
 
-        console.error('Error in itemPost handler:', error)
+        console.error('Error in itemDelete handler:', error)
         return InternalServerError(res)
     }
 }
