@@ -9,12 +9,14 @@ import { UpsertError } from 'error/index'
 
 export const list = async ({
     id,
+    packageId,
     page,
     generalFuzzy,
     fuzzy,
     limit,
 }: {
     id?: string
+    packageId?: string
     generalFuzzy?: {
         value?: string
         fields?: Array<'name' | 'description'>
@@ -65,23 +67,26 @@ export const list = async ({
         SELECT 
             *,
             COUNT(*) OVER() AS total_count
-        FROM item WHERE 1 = 1 ${id ? sql`AND id = ${id}` : sql``}
-        ${
-            hasGeneralFuzzy
-                ? sql`AND ( 
-                    ${generalFuzzyClause}
-                )
-            `
-                : sql``
-        }
-        ${
-            hasSpecificFuzzy
-                ? sql`AND ( 
-                    ${specificFuzzyClause}
-                )
-            `
-                : sql``
-        }
+        FROM item 
+        WHERE 1 = 1
+            ${id ? sql`AND id = ${id}` : sql``}
+            ${packageId ? sql`AND item.packageId = ${packageId}` : sql``}
+            ${
+                hasGeneralFuzzy
+                    ? sql`AND ( 
+                        ${generalFuzzyClause}
+                    )
+                `
+                    : sql``
+            }
+            ${
+                hasSpecificFuzzy
+                    ? sql`AND ( 
+                        ${specificFuzzyClause}
+                    )
+                `
+                    : sql``
+            }
         LIMIT ${limit} OFFSET ${(page - 1) * limit};
     `
 

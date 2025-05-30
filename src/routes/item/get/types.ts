@@ -2,6 +2,7 @@ import { Item } from 'type/entity'
 
 export type ItemGetRequest = {
     id?: string
+    packageId?: string
     fuzzyName?: string
     fuzzyDescription?: string
     generalFuzzyValue?: string
@@ -12,6 +13,7 @@ export type ItemGetRequest = {
 
 export type ItemGetParams = ItemGetRequest & {
     id?: string
+    packageId?: string
     generalFuzzy: {
         value?: string
         fields?: Array<'name' | 'description'>

@@ -5,7 +5,7 @@ import { RequestParameterValidationError } from 'error/index'
 export const extractParams = (
     req: Request<{}, {}, {}, PackageGetRequest>
 ): PackageGetParams => {
-    const { id, fuzzyName, fuzzyDescription, page, limit } = req.query
+    const { id, itemId, fuzzyName, fuzzyDescription, page, limit } = req.query
 
     const params: PackageGetParams = {
         generalFuzzy: {},
@@ -16,6 +16,11 @@ export const extractParams = (
         throw new RequestParameterValidationError('Invalid id')
     }
     params.id = id
+
+    if (!!itemId && typeof itemId !== 'string') {
+        throw new RequestParameterValidationError('Invalid itemId')
+    }
+    params.itemId = itemId
 
     if (!page) {
         params.page = 1
