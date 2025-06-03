@@ -12,8 +12,7 @@
     "dependencies": {
         "dotenv": "^16.4.7",
         "express": "^5.1.0",
-        "postgres": "^3.4.5",
-        "jose": "^6.0.11"
+        "postgres": "^3.4.5"
     },
     "devDependencies": {
         "@types/express": "^5.0.1",
