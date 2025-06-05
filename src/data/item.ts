@@ -117,7 +117,7 @@ export const upsert = async ({ record }: { record: OptionalId<Item> }) => {
             ${record.tagId ?? sql`DEFAULT`},
             ${record.categoryId ?? sql`DEFAULT`},
             ${record.packageId ?? sql`DEFAULT`},
-            ${record.userId}
+            ${record.userId ?? '1'}
         )
         ON CONFLICT (id) DO UPDATE SET
             name = EXCLUDED.name,
@@ -167,6 +167,38 @@ export const remove = async ({ id }: { id: string }) => {
         }
 
         console.error('Error deleting client:', error)
+        throw error
+    }
+}
+
+export const move = async ({
+    packageId,
+    itemId
+}: {
+    packageId: string
+    itemId: string
+}) => {
+    try {
+        const sql = createPostgresClient()
+
+        const query = await sql<Item[]>`
+        UPDATE item
+        SET packageId = ${packageId}
+        WHERE id = ${itemId}
+        RETURNING *;
+    `
+
+        return query
+    } catch (error) {
+        if (error instanceof PostgresError) {
+            if (error.code === '23503') {
+                throw new UpsertError(
+                    'Item cannot be moved due to foreign key constraints'
+                )
+            }
+        }
+
+        console.error('Error moving item:', error)
         throw error
     }
 }

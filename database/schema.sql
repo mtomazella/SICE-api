@@ -144,31 +144,3 @@ CREATE TRIGGER set_user_permission_updated_at
 BEFORE UPDATE ON User_Permission
 FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column();
-
--- create item_log record when item changes
-CREATE OR REPLACE FUNCTION log_item_changes()
-RETURNS TRIGGER AS $$
-BEGIN
-  INSERT INTO Item_Log (itemId, name, description, tagId, categoryId, packageId, userId)
-  VALUES (
-    NEW.id,
-    NEW.name,
-    NEW.description,
-    NEW.tagId,
-    NEW.categoryId,
-    NEW.packageId,
-    NEW.userId
-  );
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER item_changes_trigger
-AFTER UPDATE ON Item
-FOR EACH ROW
-EXECUTE FUNCTION log_item_changes();
-
-CREATE TRIGGER item_log_trigger
-AFTER INSERT ON Item
-FOR EACH ROW
-EXECUTE FUNCTION log_item_changes();
